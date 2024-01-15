@@ -15,8 +15,8 @@ public:
   : Node("cpp_publisher"), count_(0) 
   //constructor creating the node with name "cpp_publisher" and sets counter to 0
   {
-    publisher_ = this->create_publisher<std_msgs::msg::String>("number", 10);
-    /* initializing the publisher with "String"-message type, topic "number" and the
+    publisher_ = this->create_publisher<std_msgs::msg::Int>("number", 10);
+    /* initializing the publisher with "int"-message type, topic "number" and the
     required queue size to limit messages in backup */ 
     timer_ = this->create_wall_timer(
       1000ms, std::bind(&MinimalPublisher::timer_callback, this));
@@ -26,14 +26,14 @@ public:
 private:
   void timer_callback() //sets message data and publishes them
   {
-    auto message = std_msgs::msg::String();
-    message.data = "Integer value: " + std::to_string(count_++);
+    auto message = std_msgs::msg::Int();
+    message.data = count_++;
     RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
     // ensures that every published message is printed to console
     publisher_->publish(message);
   }
   rclcpp::TimerBase::SharedPtr timer_;
-  rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
+  rclcpp::Publisher<std_msgs::msg::Int>::SharedPtr publisher_;
   size_t count_;
   //declaration of timer, publisher and counter fields
 };
