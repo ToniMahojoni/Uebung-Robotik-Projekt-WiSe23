@@ -1,7 +1,6 @@
 #include <chrono>
 #include <functional>
 #include <memory>
-#include <string>
 
 #include "rclcpp/rclcpp.hpp" // ros2 features
 #include "std_msgs/msg/string.hpp" // includes message-type for publishing
@@ -15,7 +14,7 @@ public:
   : Node("cpp_publisher"), count_(0) 
   //constructor creating the node with name "cpp_publisher" and sets counter to 0
   {
-    publisher_ = this->create_publisher<std_msgs::msg::Int>("number", 10);
+    publisher_ = this->create_publisher<std_msgs::msg::String>("topic", 10);
     /* initializing the publisher with "int"-message type, topic "number" and the
     required queue size to limit messages in backup */ 
     timer_ = this->create_wall_timer(
@@ -26,14 +25,14 @@ public:
 private:
   void timer_callback() //sets message data and publishes them
   {
-    auto message = std_msgs::msg::Int();
-    message.data = count_++;
-    RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
+    auto msg = std_msgs::msg::String();
+    msg.data = std::to_string(count_++);
+    RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", msg.data.c_str());
     // ensures that every published message is printed to console
-    publisher_->publish(message);
+    publisher_->publish(msg);
   }
   rclcpp::TimerBase::SharedPtr timer_;
-  rclcpp::Publisher<std_msgs::msg::Int>::SharedPtr publisher_;
+  rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
   size_t count_;
   //declaration of timer, publisher and counter fields
 };

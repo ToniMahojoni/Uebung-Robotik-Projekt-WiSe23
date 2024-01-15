@@ -9,8 +9,8 @@ class MinimalSubscriber(Node): #class for the node
     def __init__(self): #constructor for the subsbriber
         super().__init__('py_subscriber') #names the subscriper "py_subscriber"
         self.subscription = self.create_subscription(
-            int, #message type
-            'number', #topic name
+            String, #message type
+            'topic', #topic name
             self.listener_callback,
             10)
         self.subscription 
@@ -23,11 +23,11 @@ class MinimalSubscriber(Node): #class for the node
 def main(args=None):
     rclpy.init(args=args)
 
-    minimal_subscriber = MinimalSubscriber()
+    py_subscriber = MinimalSubscriber()
 
-    rclpy.spin(minimal_subscriber)
+    rclpy.spin(py_subscriber)
 
-    minimal_subscriber.destroy_node()
+    py_subscriber.destroy_node()
     rclpy.shutdown()
 
 

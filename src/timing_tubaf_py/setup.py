@@ -15,7 +15,7 @@ setup(
     zip_safe=True,
     maintainer='toni',
     maintainer_email='toni.sand@student.tu-freiberg.de',
-    description='',
+    description='python subscriber for the publisher/subscriber exercise',
     license='Apache-2.0',
     tests_require=['pytest'],
     entry_points={
