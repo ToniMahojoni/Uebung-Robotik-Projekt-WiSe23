@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-             'listener = py_pubsub.subscriber_member_function:main',
+             'listener = timing_tubaf_py.subscriber_member_function:main',
         ],
     },
 )

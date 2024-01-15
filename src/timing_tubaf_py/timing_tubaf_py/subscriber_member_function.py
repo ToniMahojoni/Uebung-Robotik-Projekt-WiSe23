@@ -8,15 +8,21 @@ class MinimalSubscriber(Node): #class for the node
 
     def __init__(self): #constructor for the subsbriber
         super().__init__('py_subscriber') #names the subscriper "py_subscriber"
+        self.publisher_ = self.create_publisher(
+            String, 
+            'diff',
+            10)
         self.subscription = self.create_subscription(
             String, #message type
-            'topic', #topic name
+            'number', #topic name
             self.listener_callback,
             10)
-        self.subscription 
+        self.subscription
+        self.publisher_
 
     def listener_callback(self, msg):
-        self.get_logger().info('I heard: "%s"' % msg.data) 
+        self.publisher_.publish(msg)
+        self.get_logger().info('Publishing: "%s"' % msg.data)
         #prints info message to the console
 
 

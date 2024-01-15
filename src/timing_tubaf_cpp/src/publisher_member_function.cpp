@@ -14,7 +14,7 @@ public:
   : Node("cpp_publisher"), count_(0) 
   //constructor creating the node with name "cpp_publisher" and sets counter to 0
   {
-    publisher_ = this->create_publisher<std_msgs::msg::String>("topic", 10);
+    publisher_ = this->create_publisher<std_msgs::msg::String>("number", 10);
     /* initializing the publisher with "int"-message type, topic "number" and the
     required queue size to limit messages in backup */ 
     timer_ = this->create_wall_timer(
@@ -27,7 +27,7 @@ private:
   {
     auto msg = std_msgs::msg::String();
     msg.data = std::to_string(count_++);
-    RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", msg.data.c_str());
+    RCLCPP_INFO(this->get_logger(), "Integer Value: '%s'", msg.data.c_str());
     // ensures that every published message is printed to console
     publisher_->publish(msg);
   }
