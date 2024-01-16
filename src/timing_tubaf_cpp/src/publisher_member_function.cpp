@@ -1,47 +1,68 @@
+// standard c++ headers for basic functionalities
 #include <chrono>
 #include <functional>
 #include <memory>
 
-#include "rclcpp/rclcpp.hpp" // ros2 features
-#include "std_msgs/msg/string.hpp" // includes message-type for publishing
+// ros2 framework for creating the node
+#include "rclcpp/rclcpp.hpp" 
+
+// message type for int32 messages for the publisher
+#include "std_msgs/msg/int32.hpp" 
 
 using namespace std::chrono_literals;
 
-class MinimalPublisher : public rclcpp::Node //class for the node
+// class for the node
+class MinimalPublisher : public rclcpp::Node 
 {
 public:
+
+  // constructor for the node with name "cpp_publisher" and counter set to 0
   MinimalPublisher()
   : Node("cpp_publisher"), count_(0) 
-  //constructor creating the node with name "cpp_publisher" and sets counter to 0
   {
-    publisher_ = this->create_publisher<std_msgs::msg::String>("number", 10);
-    /* initializing the publisher with "int"-message type, topic "number" and the
-    required queue size to limit messages in backup */ 
+
+    // initializing publisher with message type Int32, topic number and queue size 10
+    publisher_ = this->create_publisher<std_msgs::msg::Int32>("number", 10);
+
+    // initializing timer for executing the timer_callback function every second
     timer_ = this->create_wall_timer(
       1000ms, std::bind(&MinimalPublisher::timer_callback, this));
-    // initializing timer causing exectution of timer_callback funciton every second 
   }
 
 private:
-  void timer_callback() //sets message data and publishes them
+
+  // function for setting message data and publishing the message
+  void timer_callback()
   {
-    auto msg = std_msgs::msg::String();
-    msg.data = std::to_string(count_++);
-    RCLCPP_INFO(this->get_logger(), "Integer Value: '%s'", msg.data.c_str());
-    // ensures that every published message is printed to console
+
+    // message data set to incrementing integer counter
+    auto msg = std_msgs::msg::Int32();
+    msg.data = count_++;
+
+    // printing a confirmation message to the console
+    RCLCPP_INFO(this->get_logger(), "Integer Value: '%i'", msg.data);
+    
+    // publishing the message to the defined topic
     publisher_->publish(msg);
   }
-  rclcpp::TimerBase::SharedPtr timer_;
-  rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
-  size_t count_;
+
   //declaration of timer, publisher and counter fields
+  rclcpp::TimerBase::SharedPtr timer_;
+  rclcpp::Publisher<std_msgs::msg::Int32>::SharedPtr publisher_;
+  int32_t count_;
 };
 
+// main function
 int main(int argc, char * argv[])
 {
-  rclcpp::init(argc, argv); //initializing ROS2
+
+  //initializing rclcpp library
+  rclcpp::init(argc, argv);
+
+  // spinning the node so that callbacks get executed
   rclcpp::spin(std::make_shared<MinimalPublisher>()); 
-  //processes data from the node (callbacks from the timer)
+
+  // shutting down rclcpp library
   rclcpp::shutdown();
   return 0;
 }
