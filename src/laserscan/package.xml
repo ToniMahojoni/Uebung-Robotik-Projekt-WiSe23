@@ -3,7 +3,7 @@
 <package format="3">
   <name>laserscan</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>laserscan for chasing and turning to the nearest object</description>
   <maintainer email="toni.sand@student.tu-freiberg.de">toni</maintainer>
   <license>Apache-2.0</license>
 

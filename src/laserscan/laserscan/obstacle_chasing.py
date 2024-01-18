@@ -21,30 +21,35 @@ class DrivingLogic(rclpy.node.Node):
         self.declare_parameter('speed_turn', 0.2)
         self.declare_parameter('scan_angle', 0)
 
-    # definition of the QoS for receiving data
-    qos_policy = rclpy.qos.QoSProfile(reliability=rclpy.qos.ReliabilityPolicy.BEST_EFFORT,
+        # definition of the QoS for receiving data
+        qos_policy = rclpy.qos.QoSProfile(reliability=rclpy.qos.ReliabilityPolicy.BEST_EFFORT,
                                           history=rclpy.qos.HistoryPolicy.KEEP_LAST,
                                           depth=1)
 
-    # creation of the subscriber for the scan data
-    self.subscription = self.create_subscription(
+        # creation of the subscriber for the scan data
+        self.subscription = self.create_subscription(
             LaserScan,
             'scan',
             self.scanner_callback,
             qos_profile=qos_policy)
-    # prevent unused variable warning
-    self.subscription  
+        
+        # prevent unused variable warning
+        self.subscription  
 
-    # creation of the publisher for driving commands
-    self.publisher_ = self.create_publisher(Twist, 'velocity', 1)
+        # creation of the publisher for driving commands
+        self.publisher_ = self.create_publisher(Twist, 'velocity', 1)
 
-    # timer to periodically invoke driving logic
-    timer_period = 0.5  # seconds
-    self.my_timer = self.create_timer(timer_period, self.timer_callback)
+        # timer to periodically invoke driving logic
+        timer_period = 0.5  # seconds
+        self.my_timer = self.create_timer(timer_period, self.timer_callback)
+
+        # defining variables for saving laser data
+        self.last_distance = 0.0
+        self.last_index = 0
 
     # function for handling laser scan data
     def scanner_callback(self, msg):
-
+    
         # sets start distance to first measurement
         least_distance = msg.ranges[0]
 
@@ -67,7 +72,9 @@ class DrivingLogic(rclpy.node.Node):
         far_stop_distance = self.get_parameter('far_stop_distance').get_parameter_value().double_value
 
         # no far away or too close obstacles
-        if (self.last_distance > far_stop_distance) or (self.last_distance < near_stop_distance):
+        if (self.last_distance == 0.0):
+            pass
+        elif (self.last_distance > far_stop_distance) or (self.last_distance < near_stop_distance):
             speed = 0.0
             print('stop')
 

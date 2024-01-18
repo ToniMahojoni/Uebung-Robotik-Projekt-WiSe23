@@ -15,11 +15,12 @@ setup(
     zip_safe=True,
     maintainer='toni',
     maintainer_email='toni.sand@student.tu-freiberg.de',
-    description='TODO: Package description',
+    description='laserscan for chasing and turning to the nearest object',
     license='Apache-2.0',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'laserscan_chase = laserscan.obstacle_chasing:main',
         ],
     },
 )
