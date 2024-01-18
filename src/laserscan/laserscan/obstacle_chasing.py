@@ -71,12 +71,14 @@ class DrivingLogic(rclpy.node.Node):
             speed = 0.0
             print('stop')
 
-        # turn if nearest obstacle isn't in front
+        # stop and turn if nearest obstacle isn't in front
         if (self.last_index > 0):
+            speed = 0.0
             turn = self.get_parameter('speed_turn').get_parameter_value().double_value
             print('turn')
         else:
             turn = 0.0
+            speed = self.get_parameter('speed_chasing').get_parameter_value().double_value
 
         # create message
         msg = Twist()
