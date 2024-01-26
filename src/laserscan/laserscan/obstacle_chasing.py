@@ -19,7 +19,7 @@ class DrivingLogic(rclpy.node.Node):
         self.declare_parameter('far_stop_distance', 0.5)
         self.declare_parameter('speed_chasing', 0.1)
         self.declare_parameter('speed_turn', 0.2)
-        self.declare_parameter('scan_angle', 0)
+        self.declare_parameter('scan_angle', 10)
 
         # definition of the QoS for receiving data
         qos_policy = rclpy.qos.QoSProfile(reliability=rclpy.qos.ReliabilityPolicy.BEST_EFFORT,
@@ -37,7 +37,7 @@ class DrivingLogic(rclpy.node.Node):
         self.subscription  
 
         # creation of the publisher for driving commands
-        self.publisher_ = self.create_publisher(Twist, 'velocity', 1)
+        self.publisher_ = self.create_publisher(Twist, 'cmd_vel', 1)
 
         # timer to periodically invoke driving logic
         timer_period = 0.5  # seconds
@@ -49,21 +49,27 @@ class DrivingLogic(rclpy.node.Node):
 
     # function for handling laser scan data
     def scanner_callback(self, msg):
+
+        biggest_distance = 0.0
+
+        #iterates through all the laser beams and searches for the one with biggest distance
+        for i in range(self.get_parameter('scan_angle').get_parameter_value().integer_value):
+            if msg.ranges[i] > biggest_distance:
+                biggest_distance = msg.ranges[i]
     
         # sets start distance to first measurement
-        least_distance = msg.ranges[0]
+        least_distance = biggest_distance
+        least_index = 0
 
         # iterates through all the laser beams and searches for the one with least distance
         for i in range(self.get_parameter('scan_angle').get_parameter_value().integer_value):
-            if msg.ranges[i] < least_distance:
+            if (msg.ranges[i] < least_distance) and (msg.ranges[i] > 0.0):
                 least_distance = msg.ranges[i]
                 least_index = i
 
         # laser beam value and index with least distance gets saved and printed 
         self.last_distance = least_distance
         self.last_index = least_index
-        print(self.last_distance)
-        print(self.last_index)
 
     def timer_callback(self):
 
@@ -72,20 +78,23 @@ class DrivingLogic(rclpy.node.Node):
         far_stop_distance = self.get_parameter('far_stop_distance').get_parameter_value().double_value
 
         # no far away or too close obstacles
-        if (self.last_distance == 0.0):
-            pass
-        elif (self.last_distance > far_stop_distance) or (self.last_distance < near_stop_distance):
+        print(self.last_distance)
+        print(self.last_index)
+
+        if (self.last_distance > near_stop_distance) and (self.last_distance < far_stop_distance):
+            speed = self.get_parameter('speed_chasing').get_parameter_value().double_value
+            print('speed')
+        elif (self.last_distance < near_stop_distance) or (self.last_distance > far_stop_distance):
+            turn = 0.0
             speed = 0.0
-            print('stop')
+            print('stop')   
 
         # stop and turn if nearest obstacle isn't in front
-        if (self.last_index > 0):
-            speed = 0.0
+        if (self.last_index == 0):
+            turn = 0
+        elif (self.last_index > 0):
             turn = self.get_parameter('speed_turn').get_parameter_value().double_value
             print('turn')
-        else:
-            turn = 0.0
-            speed = self.get_parameter('speed_chasing').get_parameter_value().double_value
 
         # create message
         msg = Twist()
