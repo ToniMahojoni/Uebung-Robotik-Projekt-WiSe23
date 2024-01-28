@@ -7,6 +7,9 @@ from std_msgs.msg import String
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist
 
+# numpy for array computations
+import numpy as np
+
 # class for the node
 class DrivingLogic(rclpy.node.Node):
 
@@ -44,57 +47,51 @@ class DrivingLogic(rclpy.node.Node):
         self.my_timer = self.create_timer(timer_period, self.timer_callback)
 
         # defining variables for saving laser data
-        self.last_distance = 0.0
-        self.last_index = 0
+        self.smallest_distance = 0.0
+        self.smallest_index = 0
 
     # function for handling laser scan data
     def scanner_callback(self, msg):
 
-        biggest_distance = 0.0
+        # variable with biggest possible distance for finding the smallest distance later
+        shortest_distance = self.get_parameter('far_stop_distance').get_parameter_value().double_value
+        shortest_index = 0
 
-        #iterates through all the laser beams and searches for the one with biggest distance
-        for i in range(self.get_parameter('scan_angle').get_parameter_value().integer_value):
-            if msg.ranges[i] > biggest_distance:
-                biggest_distance = msg.ranges[i]
-    
-        # sets start distance to first measurement
-        least_distance = biggest_distance
-        least_index = 0
+        # save current measurement data
+        current_measure = np.array(msg.ranges)
 
         # iterates through all the laser beams and searches for the one with least distance
         for i in range(self.get_parameter('scan_angle').get_parameter_value().integer_value):
-            if (msg.ranges[i] < least_distance) and (msg.ranges[i] > 0.0):
-                least_distance = msg.ranges[i]
-                least_index = i
+            if (current_measure[i] < shortest_distance) and (current_measure[i] > 0.0):
+                shortest_distance = current_measure[i]
+                shortest_index = i
 
-        # laser beam value and index with least distance gets saved and printed 
-        self.last_distance = least_distance
-        self.last_index = least_index
+        # shortest distance with its index gets saved
+        self.last_distance = shortest_distance
+        self.last_index = shortest_index
 
     def timer_callback(self):
 
-        # create variables with parameter values
+        # create variable with parameter values
         near_stop_distance = self.get_parameter('near_stop_distance').get_parameter_value().double_value
-        far_stop_distance = self.get_parameter('far_stop_distance').get_parameter_value().double_value
 
-        # no far away or too close obstacles
-        print(self.last_distance)
-        print(self.last_index)
-
-        if (self.last_distance > near_stop_distance) and (self.last_distance < far_stop_distance):
-            speed = self.get_parameter('speed_chasing').get_parameter_value().double_value
-            print('speed')
-        elif (self.last_distance < near_stop_distance) or (self.last_distance > far_stop_distance):
-            turn = 0.0
-            speed = 0.0
-            print('stop')   
+        # driving logic
 
         # stop and turn if nearest obstacle isn't in front
-        if (self.last_index == 0):
-            turn = 0
-        elif (self.last_index > 0):
+        if (self.last_index > 0):
+            speed = 0.0
             turn = self.get_parameter('speed_turn').get_parameter_value().double_value
             print('turn')
+        # stop if nearest obstacle is too close
+        elif (self.last_distance <= near_stop_distance):
+            speed = 0.0
+            turn = 0.0
+            print('stop')
+        # drive if all conditions are fulfilled
+        else:
+            speed = self.get_parameter('speed_chasing').get_parameter_value().double_value
+            turn = 0.0
+            print('drive')
 
         # create message
         msg = Twist()
