@@ -16,13 +16,17 @@ class LineFollowing(rclpy.node.Node):
         super().__init__('line_following')
 
         # definition of the parameters that can be changed at runtime
+
+        # between 0 and 319
         self.declare_parameter('boundary_left', 90)
         self.declare_parameter('boundary_right', 200)
-        self.declare_parameter('threshold_line', 100)
+        # width of the line, must fit between boundaries
+        self.declare_parameter('threshold_line', 50) 
+        # driving and turning speed
         self.declare_parameter('speed_drive', 0.1)
         self.declare_parameter('speed_turn', 0.3)
 
-        # position of brightes pixel in
+        # position of brightes pixel in the image row
         self.lineposition = 0
 
         # init openCV-bridge
@@ -63,6 +67,7 @@ class LineFollowing(rclpy.node.Node):
 
         # get the lowest row from image
         img_row = img_gray[height-1,:]
+        self.array = np.array(img_row)
 
         # show image
         cv2.imshow("IMG", img_gray)
@@ -78,10 +83,27 @@ class LineFollowing(rclpy.node.Node):
         boundary_right = self.get_parameter('boundary_right').get_parameter_value().integer_value
         speed_drive = self.get_parameter('speed_drive').get_parameter_value().double_value
         speed_turn = self.get_parameter('speed_turn').get_parameter_value().double_value
+        threshhold = self.get_parameter('threshold_line').get_parameter_value().double_value
 
-        # todo logic
-        speed = 0.0
-        turn = 0.0
+        # find out index of brightest pixel
+        for i in range(boundary_left, boundary_right+1):
+            if self.array[i] > self.array[self.lineposition]:
+                self.lineposition = i
+
+        # line not in range or no line detected
+        if (self.lineposition < boundary_left) or (self.lineposition > boundary_right):
+            speed = 0.0
+            turn = 0.0
+        # turn right if line is at the right
+        elif (self.lineposition > (boundary_right - threshhold)):
+            turn = -speed_turn
+        # turn left if line is at the left
+        elif (self.lineposition < (boundary_left + threshhold)):
+            turn = speed_turn
+        # drive when line is in the middle
+        else:
+            turn = 0.0
+            speed = speed_drive
 
         # create message
         msg = Twist()
@@ -91,16 +113,19 @@ class LineFollowing(rclpy.node.Node):
         # send message
         self.publisher_.publish(msg)
 
-
+# main function
 def main(args=None):
 
-    print('Hi from robotik_projekt line following.')
+    # program start and initializing rclpy library
     rclpy.init(args=args)
 
+    # creation of the node
     node = LineFollowing()
 
+    # spinning the node so that callbacks get executed
     rclpy.spin(node)
 
+    # destroying the node and shutting down the rclpy library
     node.destroy_node()
     rclpy.shutdown()
 
