@@ -21,8 +21,8 @@ class DrivingLogic(rclpy.node.Node):
         self.declare_parameter('near_stop_distance', 0.2)
         self.declare_parameter('far_stop_distance', 0.5)
         self.declare_parameter('speed_chasing', 0.1)
-        self.declare_parameter('speed_turn', 0.2)
-        self.declare_parameter('scan_angle', 10)
+        self.declare_parameter('speed_turn', 0.3)
+        self.declare_parameter('scan_angle', 90)
 
         # definition of the QoS for receiving data
         qos_policy = rclpy.qos.QoSProfile(reliability=rclpy.qos.ReliabilityPolicy.BEST_EFFORT,
@@ -74,6 +74,7 @@ class DrivingLogic(rclpy.node.Node):
 
         # create variable with parameter values
         near_stop_distance = self.get_parameter('near_stop_distance').get_parameter_value().double_value
+        far_stop_distance = self.get_parameter('far_stop_distance').get_parameter_value().double_value
 
         # driving logic
 
@@ -83,10 +84,11 @@ class DrivingLogic(rclpy.node.Node):
             turn = self.get_parameter('speed_turn').get_parameter_value().double_value
             print('turn')
         # stop if nearest obstacle is too close
-        elif (self.last_distance <= near_stop_distance):
+        elif (self.last_distance <= near_stop_distance) or (self.last_distance >= far_stop_distance):
             speed = 0.0
             turn = 0.0
             print('stop')
+
         # drive if all conditions are fulfilled
         else:
             speed = self.get_parameter('speed_chasing').get_parameter_value().double_value
