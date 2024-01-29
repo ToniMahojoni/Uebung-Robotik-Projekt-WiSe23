@@ -1,0 +1,3 @@
+<launch>
+  <node pkg="line_following" exec="line_chase" name="line_following" namespace="LineFollowing"/>
+</launch>

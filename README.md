@@ -8,7 +8,7 @@ Im Package `timing_tubaf_cpp` wurde ein Publisher in C++ geschrieben, welcher je
 Im Package `timing_tubaf_py` wurde ein Publisher/Subscriber in Python geschrieben, welcher zum einen auf das topic `number` subscribed und den Integer-Wert der Nachricht mit "I heard: *WERT*" auf der Konsole ausgiebt und zum anderen die zeitliche Differenz zwischen der aktuellen und letzten empfangenen Nachricht berechnet und diese mit "Zeitdifferenz: *ZEIT*" auf dem topic `diff` published.
 
 Die Software kann durch folgende Schritte ausgeführt werden:
-1. Ein Terminal im Root-Verzeichnis des Ros-workspace öffnen, in welchen das Repo geklont wurde und den Befehl `source install/setup.bash` ausführen, damit die Packages gefunden werden können. Um den C++ Publisher zu starten, muss der Befehl `ros2 run timing_tubaf_cpp talker` ausgeführt werden. Auf der Konsole erscheinen nun die Nachrichten
+1. Ein Terminal im Root-Verzeichnis des Ros-workspace öffnen, in welchen das Repo geklont wurde und den Befehl `source install/setup.bash` ausführen, damit die Packages gefunden werden können. Um den C++ Publisher zu starten, muss der Befehl `ros2 run timing_tubaf_cpp talker` ausgeführt werden. Auf der Konsole erscheinen nun die Nachrichten.
 2. Ein weiteres Terminal im Root-Verzeichnis öffnen, wieder `source install/setup.bash` ausführen und für den Python Publisher/Subscriber `ros2 run timing_tubaf_py listener` eingeben. Der Subscriber sollte nun die Nachrichten des Publishers empfangen und diese auf der Konsole wiedergeben.
 3. Zur Kontrolle, dass der Python Publisher die Zeitdifferenz der Nachrichten wirklich auf dem "diff" topic published, kann man ein weiteres Terminal im Root-Verzeichnis öffnen und mit `ros2 topic echo diff` die Funktionalität des Python Publishers prüfen.
 
