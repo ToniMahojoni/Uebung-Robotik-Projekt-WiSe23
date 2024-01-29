@@ -21,13 +21,16 @@ class LineFollowing(rclpy.node.Node):
         self.declare_parameter('boundary_left', 90)
         self.declare_parameter('boundary_right', 200)
         # width of the line, must fit between boundaries
-        self.declare_parameter('threshold_line', 50) 
+        self.declare_parameter('threshold_line', 20) 
         # driving and turning speed
         self.declare_parameter('speed_drive', 0.1)
         self.declare_parameter('speed_turn', 0.3)
 
         # position of brightes pixel in the image row
         self.lineposition = 0
+
+        # array for saving image data
+        self.array = [0] * 320
 
         # init openCV-bridge
         self.bridge = CvBridge()
@@ -70,7 +73,6 @@ class LineFollowing(rclpy.node.Node):
         self.array = np.array(img_row)
 
         # show image
-        cv2.imshow("IMG", img_gray)
         cv2.imshow("IMG_ROW", img_row)
         cv2.waitKey(1)
 
@@ -84,26 +86,35 @@ class LineFollowing(rclpy.node.Node):
         speed_drive = self.get_parameter('speed_drive').get_parameter_value().double_value
         speed_turn = self.get_parameter('speed_turn').get_parameter_value().double_value
         threshhold = self.get_parameter('threshold_line').get_parameter_value().double_value
+        middle = len(self.array)/2
 
         # find out index of brightest pixel
         for i in range(boundary_left, boundary_right+1):
             if self.array[i] > self.array[self.lineposition]:
                 self.lineposition = i
 
+        print(self.lineposition)
+
         # line not in range or no line detected
         if (self.lineposition < boundary_left) or (self.lineposition > boundary_right):
             speed = 0.0
             turn = 0.0
+            print('line out of boundary')
         # turn right if line is at the right
-        elif (self.lineposition > (boundary_right - threshhold)):
+        elif (self.lineposition > (middle + threshhold)):
+            speed = speed_drive
             turn = -speed_turn
+            print('line at the right')
         # turn left if line is at the left
-        elif (self.lineposition < (boundary_left + threshhold)):
+        elif (self.lineposition < (middle - threshhold)):
+            speed = speed_drive
             turn = speed_turn
+            print('line at the left')
         # drive when line is in the middle
         else:
             turn = 0.0
             speed = speed_drive
+            print('line in the middle')
 
         # create message
         msg = Twist()

@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'line_chase =  line_chasing.LineFollowing:main '
+            'line_chase =  line_following.line_chasing:main '
         ],
     },
 )
