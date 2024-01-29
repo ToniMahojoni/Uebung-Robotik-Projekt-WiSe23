@@ -47,3 +47,6 @@ Weitere ROS 2 Bibliotheken, die benötigt werden, sind `rclpy` und `std_msgs`, `
 Der `src`-Ordner beinhaltet grundsätzlich alle ROS 2 Packages der Software.
 Im Ordner `line_following` befindet sich das Package für die Linienverfolgungs-Software, welches unter anderen die `setup.py`, `package.xml` und im weiteren `line_following`-Ordner die `line_chasing.py` enthält. In der `setup.py` und `package.xml` Datei sind die Referenzen für die genutzen Bibliotheken und Infos zum Maintainer hinterlegt, währenddessen der eigentliche 
 Python-Code der Software in der `line_chasing.py` zu finden ist.
+
+### Launch-File
+Das Starten der Software aus Aufgabe 5 ist ebenfalls mit einem Launch-File möglich. Dieses befindet sich im Ordner `launch_files`. Zum nutzen des Launch-Files muss in der Konsole zunächst in das `launch_files`-Verzeichnis navigiert werden. An der Stelle empfielt es sich den Befehl `source install/setup.bash` auszuführen, damit ros2 das Launch-File finden kann. Danach den Befehl `ros2 launch line_following_launch.xml` ausführen. Bei erfolgreichen Programmstart erscheinen in der Konsole Meldungen, welche vom Prozessstart berichten.
